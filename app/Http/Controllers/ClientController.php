@@ -4,6 +4,7 @@ namespace CodeProject\Http\Controllers;
 
 use CodeProject\Http\Requests;
 use CodeProject\Repositories\ClientRepository;
+use CodeProject\Services\ClientService;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -13,9 +14,22 @@ class ClientController extends Controller
      */
     private $repository;
 
-    public function __construct(ClientRepository $repository)
+    /**
+     * @var ClientService
+     */
+    private $service;
+
+    /**
+     * ClientController constructor.
+     *
+     * @param ClientRepository $repository
+     * @param ClientService $service
+     */
+    public function __construct(ClientRepository $repository, ClientService $service)
     {
         $this->repository = $repository;
+
+        $this->service = $service;
     }
 
     /**
@@ -25,19 +39,8 @@ class ClientController extends Controller
      */
     public function index()
     {
-
         //return Client::all();
         return $this->repository->all();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -48,8 +51,10 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
+        //dd($request->all());
         //return Client::create($request->all());
-        return $this->repository->create($request->all());
+        //return $this->repository->create($request->all());
+        return $this->service->create($request->all());
     }
 
     /**
@@ -65,17 +70,6 @@ class ClientController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
@@ -85,7 +79,8 @@ class ClientController extends Controller
     public function update(Request $request, $id)
     {
         //return Client::find($id)->update($request->all());
-        return $this->repository->find($id)->update($request->all());
+        //return $this->repository->update($request->all(), $id);
+        return $this->service->update($request->all(), $id);
     }
 
     /**
@@ -97,6 +92,6 @@ class ClientController extends Controller
     public function destroy($id)
     {
         //return Client::find($id)->delete();
-        return $this->repository->find($id)->delete();
+        return $this->repository->delete($id);
     }
 }
