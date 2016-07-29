@@ -5,6 +5,8 @@ namespace CodeProject\Http\Controllers;
 
 use CodeProject\Repositories\ClientRepository;
 use CodeProject\Services\ClientService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -66,7 +68,16 @@ class ClientController extends Controller
     public function show($id)
     {
         //return Client::find($id);
-        return $this->repository->find($id);
+        //return $this->repository->find($id);
+
+        try {
+            return $this->repository->find($id);
+        } catch (ModelNotFoundException $e) {
+            return [
+                'error' => true,
+                'message' => 'Cliente não encontrado!'
+            ];
+        }
     }
 
     /**
@@ -80,7 +91,16 @@ class ClientController extends Controller
     {
         //return Client::find($id)->update($request->all());
         //return $this->repository->update($request->all(), $id);
-        return $this->service->update($request->all(), $id);
+        //return $this->service->update($request->all(), $id);
+
+        try {
+            return $this->service->update($request->all(), $id);
+        } catch (ModelNotFoundException $e) {
+            return [
+                'error' => true,
+                'message' => 'Não foi possível atualizar o cliente! Cliente não encontrado!'
+            ];
+        }
     }
 
     /**
@@ -92,6 +112,25 @@ class ClientController extends Controller
     public function destroy($id)
     {
         //return Client::find($id)->delete();
-        return $this->repository->delete($id);
+        //return $this->repository->delete($id);
+
+        try {
+            if ($this->repository->delete($id)) {
+                return [
+                    'success' => true,
+                    'message' => 'Cliente apagado com sucesso'
+                ];
+            }
+        } catch (ModelNotFoundException $e) {
+            return [
+                'error' => true,
+                'message' => 'Não foi possível apagar o cliente! Cliente não encontrado!'
+            ];
+        } catch (QueryException $e) {
+            return [
+                'error' => true,
+                'message' => 'Existem projetos atrelado a este cliente. Cliente não Apagado!'
+            ];
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace CodeProject\Http\Controllers;
 
 use CodeProject\Repositories\ProjectRepository;
 use CodeProject\Services\ProjectService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -63,7 +64,16 @@ class ProjectController extends Controller
     public function show($id)
     {
         //return $this->repository->find($id);
-        return $this->repository->with(['owner', 'client'])->find($id);
+        //return $this->repository->with(['owner', 'client'])->find($id);
+
+        try {
+            return $this->repository->with(['owner', 'client'])->find($id);
+        } catch (ModelNotFoundException $e) {
+            return [
+                'error' => true,
+                'message' => 'Não foi possível exibir o projeto! Projeto não encontrado!'
+            ];
+        }
     }
 
     /**
@@ -75,7 +85,16 @@ class ProjectController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return $this->service->update($request->all(), $id);
+        //return $this->service->update($request->all(), $id);
+
+        try {
+            return $this->service->update($request->all(), $id);
+        } catch (ModelNotFoundException $e) {
+            return [
+                'error' => true,
+                'message' => 'Não foi possível atualizar o projeto! Projeto não encontrado!'
+            ];
+        }
     }
 
     /**
@@ -86,6 +105,20 @@ class ProjectController extends Controller
      */
     public function destroy($id)
     {
-        return $this->repository->delete($id);
+        //return $this->repository->delete($id);
+
+        try {
+            if ($this->repository->delete($id)) {
+                return [
+                    'success' => true,
+                    'message' => 'Projeto apagado com sucesso'
+                ];
+            }
+        } catch (ModelNotFoundException $e) {
+            return [
+                'error' => true,
+                'message' => 'Não foi possível apagar o projeto! Projeto não encontrado!'
+            ];
+        }
     }
 }
