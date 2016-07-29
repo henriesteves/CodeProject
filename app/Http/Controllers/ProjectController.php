@@ -3,29 +3,29 @@
 namespace CodeProject\Http\Controllers;
 
 
-use CodeProject\Repositories\ClientRepository;
-use CodeProject\Services\ClientService;
+use CodeProject\Repositories\ProjectRepository;
+use CodeProject\Services\ProjectService;
 use Illuminate\Http\Request;
 
-class ClientController extends Controller
+class ProjectController extends Controller
 {
     /**
-     * @var ClientRepository
+     * @var ProjectRepository
      */
     private $repository;
 
     /**
-     * @var ClientService
+     * @var ProjectService
      */
     private $service;
 
     /**
-     * ClientController constructor.
+     * ProjectController constructor.
      *
-     * @param ClientRepository $repository
-     * @param ClientService $service
+     * @param ProjectRepository $repository
+     * @param ProjectService $service
      */
-    public function __construct(ClientRepository $repository, ClientService $service)
+    public function __construct(ProjectRepository $repository, ProjectService $service)
     {
         $this->repository = $repository;
 
@@ -39,59 +39,53 @@ class ClientController extends Controller
      */
     public function index()
     {
-        //return Client::all();
-        return $this->repository->all();
+        //return $this->repository->all();
+        return $this->repository->with(['owner', 'client'])->all();
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //dd($request->all());
-        //return Client::create($request->all());
-        //return $this->repository->create($request->all());
         return $this->service->create($request->all());
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        //return Client::find($id);
-        return $this->repository->find($id);
+        //return $this->repository->find($id);
+        return $this->repository->with(['owner', 'client'])->find($id);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        //return Client::find($id)->update($request->all());
-        //return $this->repository->update($request->all(), $id);
         return $this->service->update($request->all(), $id);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        //return Client::find($id)->delete();
         return $this->repository->delete($id);
     }
 }
