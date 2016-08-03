@@ -51,6 +51,22 @@ $factory->define(CodeProject\Entities\ProjectNote::class, function (Faker\Genera
     ];
 });
 
+$factory->define(CodeProject\Entities\ProjectTask::class, function (Faker\Generator $faker) {
+    return [
+        'project_id' => $faker->numberBetween(1, 10),
+        'name' => $faker->word,
+        'status' => rand(1, 3),
+        'start_date' => $faker->date('Y-m-d', 'now'),
+        'due_date' => $faker->date('Y-m-d', 'now'),
+    ];
+});
+$factory->define(CodeProject\Entities\ProjectMember::class, function (Faker\Generator $faker) {
+    return [
+        'project_id' => rand(1, 10),
+        'user_id' => rand(1, 10),
+    ];
+});
+
 /*
 
 Obs: Comandos de teste para o tinker:
