@@ -7,6 +7,7 @@ use CodeProject\Repositories\ProjectRepository;
 use CodeProject\Services\ProjectService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 
 class ProjectController extends Controller
 {
@@ -65,6 +66,14 @@ class ProjectController extends Controller
     {
         //return $this->repository->find($id);
         //return $this->repository->with(['owner', 'client'])->find($id);
+
+        //return['userId' => Authorizer::getResourceOwnerId()];
+
+//        $userId = Authorizer::getResourceOwnerId();
+//
+//        if ($this->repository->isOwner($id, $userId) == false) {
+//            return ['success' => false];
+//        }
 
         try {
             return $this->repository->with(['owner', 'client'])->find($id);
