@@ -42,13 +42,14 @@ class ProjectController extends Controller
     public function index()
     {
         //return $this->repository->all();
-        return $this->repository->with(['owner', 'client'])->all();
+        //return $this->repository->with(['owner', 'client'])->all();
+        return $this->repository->with(['owner', 'client'])->findWhere(['owner_id' => Authorizer::getResourceOwnerId()]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -59,7 +60,7 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -76,6 +77,10 @@ class ProjectController extends Controller
 //        }
 
         try {
+            //if ($this->checkProjectOwner($id) == false) {
+            if ($this->checkProjectPermissions($id) == false) {
+                return ['error' => 'Access forbidden'];
+            }
             return $this->repository->with(['owner', 'client'])->find($id);
         } catch (ModelNotFoundException $e) {
             return [
@@ -88,8 +93,8 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -97,6 +102,9 @@ class ProjectController extends Controller
         //return $this->service->update($request->all(), $id);
 
         try {
+            if ($this->checkProjectOwner($id) == false) {
+                return ['error' => 'Access forbidden'];
+            }
             return $this->service->update($request->all(), $id);
         } catch (ModelNotFoundException $e) {
             return [
@@ -109,7 +117,7 @@ class ProjectController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -117,6 +125,9 @@ class ProjectController extends Controller
         //return $this->repository->delete($id);
 
         try {
+            if ($this->checkProjectOwner($id) == false) {
+                return ['error' => 'Access forbidden'];
+            }
             if ($this->repository->delete($id)) {
                 return [
                     'success' => true,
@@ -144,5 +155,30 @@ class ProjectController extends Controller
     public function isMember($id, $memberId)
     {
         return $this->service->isMember($id, $memberId);
+    }
+
+    private function checkProjectOwner($projectId)
+    {
+        $userId = Authorizer::getResourceOwnerId();
+
+        return $this->repository->isOwner($projectId, $userId);
+    }
+
+    private function checkProjectMember($projectId)
+    {
+        $userId = Authorizer::getResourceOwnerId();
+
+        return $this->repository->hasMember($projectId, $userId);
+    }
+
+    private function checkProjectPermissions($projectId)
+    {
+        if ($this->checkProjectOwner($projectId) or $this->checkProjectMember($projectId))
+        {
+            return true;
+        }
+
+        return false;
+
     }
 }
