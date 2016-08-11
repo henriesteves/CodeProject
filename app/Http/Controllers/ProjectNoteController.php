@@ -22,7 +22,7 @@ class ProjectNoteController extends Controller
     private $service;
 
     /**
-     * ProjectController constructor.
+     * ProjectNoteController constructor.
      *
      * @param ProjectNoteRepository $repository
      * @param ProjectNoteService $service
@@ -30,7 +30,6 @@ class ProjectNoteController extends Controller
     public function __construct(ProjectNoteRepository $repository, ProjectNoteService $service)
     {
         $this->repository = $repository;
-
         $this->service = $service;
     }
 
