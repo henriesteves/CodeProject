@@ -5,12 +5,12 @@ namespace CodeProject\Services;
 
 use CodeProject\Repositories\ProjectRepository;
 use CodeProject\Validators\ProjectValidator;
-//use Illuminate\Support\Facades\File;
-//use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Filesystem\Factory as Storage;
+use Illuminate\Filesystem\Filesystem;
 use Prettus\Validator\Exceptions\ValidatorException;
 
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Contracts\Filesystem\Factory as Storage;
+//use Illuminate\Support\Facades\File;
+//use Illuminate\Support\Facades\Storage;
 
 class ProjectService
 {
@@ -114,5 +114,22 @@ class ProjectService
 
         //Storage::put($data['name'] . '.' . $data['extension'], File::get($data['file']));
         $this->storage->put($projectFile->id . '.' . $data['extension'], $this->filesystem->get($data['file']));
+    }
+
+    public function deleteFile($project_id, $file_id)
+    {
+        $project = $this->repository->skipPresenter()->find($project_id);
+        if ($project) {
+            $projectFile = $project->files->find($file_id);
+            if ($projectFile) {
+                $this->storage->delete($projectFile->id . '.' . $projectFile->extension);
+                $projectFile->delete($file_id);
+            } else {
+                return [
+                    'error' => true,
+                    'message' => 'Arquivo não encontrado'
+                ];
+            }
+        }
     }
 }

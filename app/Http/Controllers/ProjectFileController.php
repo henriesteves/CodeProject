@@ -4,6 +4,7 @@ namespace CodeProject\Http\Controllers;
 
 use CodeProject\Repositories\ProjectRepository;
 use CodeProject\Services\ProjectService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ProjectFileController extends Controller
@@ -38,18 +39,37 @@ class ProjectFileController extends Controller
      */
     public function store(Request $request)
     {
-        $file = $request->file('file');
+        try {
+            $file = $request->file('file');
 
-        $extension = $file->getClientOriginalExtension();
+            $extension = $file->getClientOriginalExtension();
 
-        //Storage::put($request->name . '.' . $extension, File::get($file));
+            //Storage::put($request->name . '.' . $extension, File::get($file));
 
-        $data['project_id'] = $request->project_id;
-        $data['file'] = $file;
-        $data['extension'] = $extension;
-        $data['name'] = $request->name;
-        $data['description'] = $request->description;
+            $data['project_id'] = $request->project_id;
+            $data['file'] = $file;
+            $data['extension'] = $extension;
+            $data['name'] = $request->name;
+            $data['description'] = $request->description;
 
-        $this->service->createFile($data);
+            $this->service->createFile($data);
+        } catch (ModelNotFoundException $e) {
+            return [
+                'error' => true,
+                'message' => 'Não foi possível fazer o upload do arquivo'
+            ];
+        }
+    }
+
+    public function destroy($projectId, $fileId)
+    {
+        try {
+            return $this->service->deleteFile($projectId, $fileId);
+        } catch (ModelNotFoundException $e) {
+            return [
+                'error' => true,
+                'message' => 'Não foi possível apagar o arquivo'
+            ];
+        }
     }
 }
